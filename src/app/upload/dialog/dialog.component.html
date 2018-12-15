@@ -1,4 +1,4 @@
-<input type="file" #file style="display: none" (change)="onFilesAdded()" multiple />
+<input type="file" #file style="display: none" (change)="onFilesAdded()" multiple accept="image/*" />
 <div class="container" fxLayout="column" fxLayoutAlign="space-evenly stretch">
   <h1 mat-dialog-title>Upload Files</h1>
   <div>
@@ -11,6 +11,7 @@
   <mat-dialog-content fxFlex>
     <mat-list>
       <mat-list-item *ngFor="let file of files">
+        <img class="tobeImage" src="{{imgsrc}}" alt="">
         <h4 mat-line>{{file.name}}</h4>
         <mat-progress-bar *ngIf="progress" mode="determinate" [value]="progress[file.name].progress | async"></mat-progress-bar>
       </mat-list-item>
@@ -19,7 +20,9 @@
 
   <!-- This are the actions of the dialog, containing the primary and the cancel button-->
   <mat-dialog-actions class="actions">
+    <span>{{allProgress}}%</span>
     <button *ngIf="showCancelButton" mat-button mat-dialog-close>Cancel</button>
+    <button [disabled]="!canBeClosed" mat-raised-button color="primary" (click)="uploadAll()">UploadAll</button>
     <button mat-raised-button color="primary" [disabled]="!canBeClosed" (click)="closeDialog()">{{primaryButtonText}}</button>
   </mat-dialog-actions>
 </div>

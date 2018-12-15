@@ -17,6 +17,10 @@ export class DialogComponent{
   uploading = false;
   uploadSuccessful = false;
 
+  imgsrc:any = "http://placehold.it/180";
+
+  allProgress = 0;
+
   constructor(
     public dialogRef: MatDialogRef<DialogComponent>, 
     public uploadService: UploadService) {}
@@ -29,11 +33,24 @@ export class DialogComponent{
 
   onFilesAdded() {
     const files: { [key: string]: File } = this.file.nativeElement.files;
+    // console.log(files)
     for (let key in files) {
       if (!isNaN(parseInt(key))) {
         this.files.add(files[key]);
+        let file = files[key];
+
+        const reader = new FileReader();
+        reader.onload = e => this.imgsrc = reader.result;
+
+        reader.readAsDataURL(file);
       }
     }
+  }
+
+  uploadAll() {
+    this.uploadService.all(this.files).subscribe(p=>{
+      this.allProgress = p;
+    })
   }
 
   closeDialog() {

@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpRequest, HttpEventType, HttpResponse } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 
-const url = 'http://localhost:8000/upload';
+const url = 'http://localhost:8000/upload2';
+const urlAll = 'http://localhost:8000/upload3';
 
 @Injectable({
   providedIn: 'root'
@@ -41,6 +42,7 @@ export class UploadService {
 
           // Close the progress-stream if we get an answer form the API
           // The upload is complete
+          console.log(event.body)
           progress.complete();
         }
       });
@@ -53,5 +55,36 @@ export class UploadService {
 
     // return the map of progress.observables
     return status;
+  }
+
+  public all(files: Set<File>){
+    const formData: any = new FormData();
+    // let i = 0;
+    files.forEach((file)=>{
+      formData.append('file', file, file.name)
+    })
+
+    // create a http-post request and pass the form
+    // tell it to report the upload progress
+    const req = new HttpRequest('POST', urlAll, formData, {
+      reportProgress: true
+    });
+
+    const progress = new Subject<number>();
+
+    this.http.request(req).subscribe(res => {
+      if(res.type == HttpEventType.UploadProgress){
+        const parcentDone = Math.round(100*res.loaded / res.total);
+        progress.next(parcentDone);
+      } else if (res instanceof HttpResponse) {
+
+        // Close the progress-stream if we get an answer form the API
+        // The upload is complete
+        console.log(res.body)
+        progress.complete();
+      }
+    })
+
+    return progress.asObservable();
   }
 }
